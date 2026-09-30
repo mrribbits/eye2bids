@@ -10,7 +10,7 @@ eye-tracking format:
 ## Which eye2bids this installs
 
 **The installer currently installs a patched copy of eye2bids from this fork**
-(branch `fix-remote-reccfg-eye`), not the official
+(branch `fix-remote-reccfg-eye`, pinned to commit 3d05e3a), not the official
 [bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
 
 Why: the MEG lab's EyeLink 1000 Plus runs in **OPM (Remote) tracking mode**.
