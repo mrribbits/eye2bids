@@ -116,6 +116,7 @@ export PATH="$INSTALL_DIR/bin:$INSTALL_DIR/venv/bin:\$PATH"
 export LD_LIBRARY_PATH="$INSTALL_DIR/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
 EOF
 
+cd "$INSTALL_DIR"            # step out of tmp before deleting it
 rm -rf "$INSTALL_DIR/tmp"
 
 # ------------------------------------------------------------
