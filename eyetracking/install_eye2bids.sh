@@ -22,10 +22,12 @@ INSTALL_DIR="${INSTALL_DIR:-$HOME/software/eye2bids}"
 PYTHON="${PYTHON:-python3}"
 
 # eye2bids source: the fork with the remote-mode RECCFG fix.
-# Replace the branch name with a commit SHA to pin an exact version.
+# Pinned to a commit so every install gets the same code; to update, run
+#   git ls-remote https://github.com/mrribbits/eye2bids.git fix-remote-reccfg-eye
+# and paste the new commit ID here.
 # Switch to bids-standard/eye2bids once the fix is merged upstream.
 EYE2BIDS_REPO="https://github.com/mrribbits/eye2bids.git"
-EYE2BIDS_REF="fix-remote-reccfg-eye"
+EYE2BIDS_REF="3d05e3a3941c099fe2950064723c50af9fa28989"   # fix-remote-reccfg-eye, 2026-09-29
 
 # URL of the Scully MEG metadata file (scully-config branch of the fork);
 # set METADATA_URL="" to skip this step
