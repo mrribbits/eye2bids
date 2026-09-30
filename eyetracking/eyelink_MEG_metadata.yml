@@ -1,0 +1,50 @@
+---
+# manual_metadata for eye2bids (EyeLink .edf input)
+# BIDS BEP020 spec: https://bids-specification--1128.org.readthedocs.build/en/1128/modality-specific-files/eye-tracking.html
+# Units for ScreenSize / ScreenDistance / EyeTrackerDistance are METERS.
+# Anything left empty (null) is simply dropped from the output JSON.
+#
+# Pulled automatically from the EDF by eye2bids (do NOT enter here):
+#   SamplingFrequency, RecordedEye, CalibrationType, CalibrationCount,
+#   Average/MaximalCalibrationError, ScreenResolution, Manufacturer
+
+# ---------------- REQUIRED ----------------
+# EyeLink GAZE samples are in display pixels, origin at the top-left of the screen.
+SampleCoordinateSystem: gaze-on-screen
+ScreenOrigin: [top, left]
+Units: pixel
+
+# ------------- Recommended / optional -------------
+# Host software string from the EDF header. Get it with:
+#   edf2asc -e -y yourfile.edf   then read the "** VERSION:" / "** EYELINK ..." lines at the top of the .asc
+SoftwareVersion: "5.51.53237"
+
+ScreenRefreshRate: 120
+
+ScreenSize: [0.606, 0.341]
+
+# Perpendicular eye-to-screen distance, derived from eye-to-top 940 mm and eye-to-bottom 990 mm
+# (eye sits ~0.14 m above screen center; eye-to-center is ~0.95 m).
+ScreenDistance: 0.94
+
+# Target-sticker-to-camera distance reported by the EyeLink Host PC (varies slightly per participant).
+EyeTrackerDistance: 0.61
+
+# Only if your task defines areas of interest; format: [shape, [coords in pixels]]
+# e.g. [square, [760, 340, 1160, 740]]  (left, top, right, bottom)
+ScreenAOIDefinition:
+
+EyeCameraSettings:
+  Configuration: "OPM (Remote)"
+  TrackingMode: "Remote, target sticker, monocular"
+  Lens: "16 mm"
+  CameraToScreenDistance: "0.429 m"
+FeatureDetectionSettings:
+  PupilDetection: "Ellipse"
+GazeMappingSettings:
+  CalibrationModel: "HV13"
+RawDataFilters: "EyeLink heuristic file sample filter: EXTRA (level 2)"
+
+InstitutionName: Princeton Neuroscience Institute, Princeton University
+InstitutionAddress: Washington Road, Princeton, NJ 08544, USA
+TaskName: oddballftcued
