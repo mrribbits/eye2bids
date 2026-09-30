@@ -86,4 +86,4 @@ Notes:
 - **eye2bids doesn't create an `_events.tsv`** of task trials. Supply it from your experiment log or MEG events; `_events.json` describes it.
 - **Change `ScreenResolution` in `_events.json` to `[1920, 1080]`.** eye2bids writes `[1919, 1079]`, a known off-by-one.
 - **Multiple recording blocks in one EDF end up in one continuous file.** The log prints a note about multiple start/stop times; this is expected.
-- **Put the outputs in the same `sub-/ses-` folder as the matching MEG run**, so the two can be matched up.
+- **Put the outputs in the `meg/` folder of the matching session.** BIDS has no `physio/` folder: eye-tracking files go in the same datatype folder as the recording they accompany, e.g. `sub-001/ses-001/meg/`. Their `sub-`, `ses-`, `task-` (and `run-`, if used) labels should match the MEG run's.
