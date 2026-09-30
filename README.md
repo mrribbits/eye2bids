@@ -7,9 +7,33 @@ eye-tracking format:
 - `install_eye2bids.sh`: installs eye2bids and SR Research's `edf2asc` on the cluster (no sudo needed)
 - `eyelink_MEG_metadata.yml`: the MEG lab's eye-tracker settings (screen, distances, camera, filters)
 
-The installer uses a patched eye2bids from this fork, which fixes a crash with
-EyeLink remote-mode recordings. The fix has been submitted upstream to
-[bids-standard/eye2bids](https://github.com/bids-standard/eye2bids).
+## Which eye2bids this installs
+
+**The installer currently installs a patched copy of eye2bids from this fork**
+(branch `fix-remote-reccfg-eye`), not the official
+[bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
+
+Why: the MEG lab's EyeLink 1000 Plus runs in **OPM (Remote) tracking mode**.
+In this mode, the tracker writes its recording settings to the EDF in a slightly
+different format than in the standard desktop/head-stabilized modes. It adds
+two extra fields before the recorded eye:
+
+```
+RECCFG CR 500 2 2 2 2 R     <- OPM (Remote) mode
+RECCFG CR 1000 2 1 R        <- standard mode
+```
+
+The official eye2bids expects the standard format. With remote-mode files it
+can't tell which eye was recorded, and the conversion crashes partway through
+(`UnboundLocalError: ... 'data_to_save'`). The patched version reads the eye
+correctly from both formats, and otherwise behaves exactly like the official
+release.
+
+The fix has been submitted to the eye2bids developers as a
+[pull request #143](https://github.com/bids-standard/eye2bids/pull/143). Once it's
+merged, the installer will switch to the official release and this fork will no
+longer be needed. If you installed before then, re-run the installer at that
+point to get the official version.
 
 ## 1. Download the install script
 
