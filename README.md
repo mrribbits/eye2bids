@@ -10,30 +10,42 @@ eye-tracking format:
 ## Which eye2bids this installs
 
 **The installer currently installs a patched copy of eye2bids from this fork**
-(branch `fix-remote-reccfg-eye`, pinned to commit 3d05e3a), not the official
+(branch `remote-target-columns`), not the official
 [bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
+It has two changes for Remote-mode recordings. Head-stabilized recordings are
+converted exactly as by the official release.
 
-Why: the MEG lab's EyeLink 1000 Plus runs in **OPM (Remote) tracking mode**.
-In this mode, the tracker writes its recording settings to the EDF in a slightly
-different format than in the standard desktop/head-stabilized modes. It adds
-two extra fields before the recorded eye:
+The MEG lab's EyeLink 1000 Plus uses the **OPM mount in Remote mode**: it
+tracks a target sticker on the forehead instead of relying on a stabilized head
+(OPM (Remote) - Target Sticker - Monocular).
+
+**1. Fix: Remote-mode files no longer crash.** In Remote mode, the tracker writes
+its recording settings to the EDF in a slightly different format than in
+head-stabilized mode, with two extra fields before the recorded eye:
 
 ```
-RECCFG CR 500 2 2 2 2 R     <- OPM (Remote) mode
-RECCFG CR 1000 2 1 R        <- standard mode
+RECCFG CR 500 2 2 2 2 R     <- OPM mount, Remote mode (target sticker)
+RECCFG CR 1000 2 1 R        <- head-stabilized mode
 ```
 
-The official eye2bids expects the standard format. With remote-mode files it
+The official eye2bids expects the head-stabilized format. With Remote-mode files it
 can't tell which eye was recorded, and the conversion crashes partway through
 (`UnboundLocalError: ... 'data_to_save'`). The patched version reads the eye
-correctly from both formats, and otherwise behaves exactly like the official
-release.
+correctly from both formats.
+([pull request #143](https://github.com/bids-standard/eye2bids/pull/143))
 
-The fix has been submitted to the eye2bids developers as a
-[pull request #143](https://github.com/bids-standard/eye2bids/pull/143). Once it's
-merged, the installer will switch to the official release and this fork will no
-longer be needed. If you installed before then, re-run the installer at that
-point to get the official version.
+**2. New: target sticker data is kept.** In Remote mode, every sample also
+records where the target sticker is. The official eye2bids discards this; the
+patched version adds it to `_physio.tsv.gz` as four extra columns:
+`target_x`, `target_y` (sticker position in the camera image), `target_distance`
+(sticker-to-camera distance, mm) and `target_flags` (tracker warnings, e.g. target
+missing). This gives a continuous record of head movement during the MEG run.
+([pull request #144](https://github.com/bids-standard/eye2bids/pull/144))
+
+Both changes have been submitted to the eye2bids developers. Once they're merged,
+the installer will switch to the official release and this fork will no longer be
+needed. If you installed before then, re-run the installer at that point to get
+the official version.
 
 ## 1. Download the install script
 
@@ -97,7 +109,7 @@ For `sub-001_ses-001_task-oddballftcued.edf` you get:
 
 | File | What it is |
 |---|---|
-| `…_recording-eye1_physio.tsv.gz` | Continuous gaze data, one row per sample: timestamp, x, y, pupil size. No header row; the column names are in the `.json`. |
+| `…_recording-eye1_physio.tsv.gz` | Continuous gaze data, one row per sample: timestamp, x, y, pupil size, then the target sticker columns (`target_x`, `target_y`, `target_distance`, `target_flags`). No header row; the column names are in the `.json`. In `target_flags`, `0` means no warnings and `1` means the target was missing; the `.json` lists the other values. |
 | `…_recording-eye1_physio.json` | Describes the gaze data: your metadata settings plus values read from the EDF (sampling rate, recorded eye, calibration type and errors, pupil fit method). |
 | `…_recording-eye1_physioevents.tsv.gz` | Events detected by EyeLink (fixations, saccades, blinks) and every message your experiment sent to the tracker (e.g. trial markers). Columns: onset, duration, trial_type, blink, message. |
 | `…_recording-eye1_physioevents.json` | Describes the physioevents columns. |
