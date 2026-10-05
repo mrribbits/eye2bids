@@ -21,14 +21,19 @@ INSTALL_DIR="${INSTALL_DIR:-$HOME/software/eye2bids}"
 # (on the cluster you may need e.g. "module load anacondapy" first)
 PYTHON="${PYTHON:-python3}"
 
-# eye2bids source: the fork's scully-eye2bids branch, which combines the
-# official eye2bids with fixes submitted upstream but not yet merged:
-#   PR #143 (Remote-mode RECCFG fix), PR #144 (target sticker columns),
-#   PR #145 (ScreenResolution off-by-one).
-# Replace the branch name with a commit SHA to pin an exact version.
-# Switch to bids-standard/eye2bids "main" once all are merged upstream.
+# eye2bids source: a pinned commit of the fork's scully-eye2bids branch,
+# which combines the official eye2bids with fixes submitted upstream but not
+# yet merged:
+#   PR #143 (Remote-mode RECCFG fix), PR #144 (target sticker columns,
+#   eye2 n/a fix), PR #145 (ScreenResolution off-by-one).
+# EYE2BIDS_REF is a full commit SHA, not a branch name, so installs only
+# change when this line is edited. To update: push to scully-eye2bids, run
+#   git rev-parse scully-eye2bids
+# and paste the 40-character SHA here.
+# Switch to bids-standard/eye2bids (and a release tag or commit) once all
+# fixes are merged upstream.
 EYE2BIDS_REPO="https://github.com/mrribbits/eye2bids.git"
-EYE2BIDS_REF="scully-eye2bids"
+EYE2BIDS_REF="2f048446a301cf569a4db328feaae2206a2847b6"
 
 # URL of the Scully MEG metadata file (scully-config branch of the fork);
 # set METADATA_URL="" to skip this step
@@ -39,6 +44,12 @@ SR_REPO="https://apt.sr-research.com"
 SR_PACKAGES="eyelink-edf2asc eyelink-edfapi"   # edf2asc needs the EDF Access API library
 
 # ============================================================
+
+# Refuse anything but a full commit SHA, so installs are reproducible
+if [[ ! "$EYE2BIDS_REF" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "ERROR: EYE2BIDS_REF must be a full 40-character commit SHA (got '$EYE2BIDS_REF')" >&2
+    exit 1
+fi
 
 mkdir -p "$INSTALL_DIR"/{bin,lib,tmp}
 cd "$INSTALL_DIR/tmp"

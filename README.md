@@ -10,7 +10,7 @@ eye-tracking format:
 ## Which eye2bids this installs
 
 **The installer currently installs a patched copy of eye2bids from this fork**
-(branch `scully-eye2bids`), not the official
+(a pinned commit of branch `scully-eye2bids`), not the official
 [bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
 It has three changes. The first two only affect Remote-mode recordings;
 head-stabilized recordings are otherwise converted exactly as by the official release.
