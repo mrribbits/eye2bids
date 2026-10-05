@@ -21,12 +21,14 @@ INSTALL_DIR="${INSTALL_DIR:-$HOME/software/eye2bids}"
 # (on the cluster you may need e.g. "module load anacondapy" first)
 PYTHON="${PYTHON:-python3}"
 
-# eye2bids source: the fork with two Remote-mode changes
-# (RECCFG fix, PR #143, and target sticker columns, PR #144).
+# eye2bids source: the fork's scully-eye2bids branch, which combines the
+# official eye2bids with fixes submitted upstream but not yet merged:
+#   PR #143 (Remote-mode RECCFG fix), PR #144 (target sticker columns),
+#   PR #145 (ScreenResolution off-by-one).
 # Replace the branch name with a commit SHA to pin an exact version.
-# Switch to bids-standard/eye2bids once both are merged upstream.
+# Switch to bids-standard/eye2bids "main" once all are merged upstream.
 EYE2BIDS_REPO="https://github.com/mrribbits/eye2bids.git"
-EYE2BIDS_REF="remote-target-columns"
+EYE2BIDS_REF="scully-eye2bids"
 
 # URL of the Scully MEG metadata file (scully-config branch of the fork);
 # set METADATA_URL="" to skip this step

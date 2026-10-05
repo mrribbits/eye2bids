@@ -10,10 +10,10 @@ eye-tracking format:
 ## Which eye2bids this installs
 
 **The installer currently installs a patched copy of eye2bids from this fork**
-(branch `remote-target-columns`), not the official
+(branch `scully-eye2bids`), not the official
 [bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
-It has two changes for Remote-mode recordings. Head-stabilized recordings are
-converted exactly as by the official release.
+It has three changes. The first two only affect Remote-mode recordings;
+head-stabilized recordings are otherwise converted exactly as by the official release.
 
 The MEG lab's EyeLink 1000 Plus uses the **OPM mount in Remote mode**: it
 tracks a target sticker on the forehead instead of relying on a stabilized head
@@ -42,10 +42,16 @@ patched version adds it to `_physio.tsv.gz` as four extra columns:
 missing). This gives a continuous record of head movement during the MEG run.
 ([pull request #144](https://github.com/bids-standard/eye2bids/pull/144))
 
-Both changes have been submitted to the eye2bids developers. Once they're merged,
-the installer will switch to the official release and this fork will no longer be
-needed. If you installed before then, re-run the installer at that point to get
-the official version.
+**3. Fix: correct screen resolution.** The official eye2bids writes
+`ScreenResolution` in `_events.json` as `[1919, 1079]` for a 1920 x 1080 screen
+(it copies the last pixel's coordinates instead of the pixel count). The
+patched version writes `[1920, 1080]`. This affects all recordings.
+([pull request #145](https://github.com/bids-standard/eye2bids/pull/145))
+
+All three changes have been submitted to the eye2bids developers. Once they're
+merged, the installer will switch to the official release and this fork will no
+longer be needed. If you installed before then, re-run the installer at that
+point to get the official version.
 
 ## 1. Download the install script
 
@@ -120,6 +126,5 @@ Notes:
 
 - **The `recording-eye1` label doesn't mean the left eye.** It's used for any single recorded eye. Check `RecordedEye` in `_physio.json` for which eye it was.
 - **eye2bids doesn't create an `_events.tsv`** of task trials. Supply it from your experiment log or MEG events; `_events.json` describes it.
-- **Change `ScreenResolution` in `_events.json` to `[1920, 1080]`.** eye2bids writes `[1919, 1079]`, a known off-by-one.
 - **Multiple recording blocks in one EDF end up in one continuous file.** The log prints a note about multiple start/stop times; this is expected.
 - **Put the outputs in the `meg/` folder of the matching session.** BIDS has no `physio/` folder: eye-tracking files go in the same datatype folder as the recording they accompany, e.g. `sub-001/ses-001/meg/`. Their `sub-`, `ses-`, `task-` (and `run-`, if used) labels should match the MEG run's.
