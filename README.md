@@ -4,7 +4,7 @@ This branch has what you need to convert EyeLink `.edf` recordings from the
 Scully Center OPM-MEG lab to [BIDS](https://bids-specification.readthedocs.io/)
 eye-tracking format:
 
-- `install_eye2bids.sh`: installs eye2bids and SR Research's `edf2asc` on the cluster (no sudo needed)
+- `install_eye2bids.sh`: installs eye2bids and SR Research's `edf2asc` on the cluster (Linux) or a Mac, no sudo needed
 - `eyelink_MEG_metadata.yml`: the MEG lab's eye-tracker settings (screen, distances, camera, filters)
 
 ## Which eye2bids this installs
@@ -40,13 +40,13 @@ patched version adds it to `_physio.tsv.gz` as four extra columns:
 `target_x`, `target_y` (sticker position in the camera image), `target_distance`
 (sticker-to-camera distance, mm) and `target_flags` (tracker warnings, e.g. target
 missing). This gives a continuous record of head movement during the MEG run.
-([pull request #144](https://github.com/bids-standard/eye2bids/pull/144))
+([pull request #144](https://github.com/bids-standard/eye2bids/pull/NNN))
 
 **3. Fix: correct screen resolution.** The official eye2bids writes
 `ScreenResolution` in `_events.json` as `[1919, 1079]` for a 1920 x 1080 screen
 (it copies the last pixel's coordinates instead of the pixel count). The
 patched version writes `[1920, 1080]`. This affects all recordings.
-([pull request #145](https://github.com/bids-standard/eye2bids/pull/145))
+([pull request #145](https://github.com/bids-standard/eye2bids/pull/MMM))
 
 All three changes have been submitted to the eye2bids developers. Once they're
 merged, the installer will switch to the official release and this fork will no
@@ -70,6 +70,24 @@ INSTALL_DIR=/jukebox/[...]/eye2bids bash install_eye2bids.sh
 ```
 
 Everything goes into `INSTALL_DIR`. To uninstall, delete that folder.
+
+### On a Mac
+
+The same installer works on macOS, with one extra step first. On Linux it
+downloads `edf2asc` itself, but SR Research's macOS installer needs a login, so:
+
+1. Log in to the [SR Research support forum](https://www.sr-research.com/support/),
+   then download and run the **EyeLink Developers Kit** installer for macOS.
+2. Open a new terminal and check that `which edf2asc` prints a path.
+3. Run the installer, e.g. into your home folder:
+
+   ```bash
+   INSTALL_DIR=$HOME/software/eye2bids bash install_eye2bids.sh
+   ```
+
+If `edf2asc` is installed but not on your PATH, add
+`EDF2ASC=/path/to/edf2asc` in front of the command. Without `edf2asc`, the
+installer stops before installing anything and explains what to do.
 
 eye2bids needs Python 3.9 or newer. If `python3` on your system is older, load a
 newer Python first or point the installer at one:
