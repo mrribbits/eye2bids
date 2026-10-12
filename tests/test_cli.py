@@ -33,6 +33,7 @@ def test_edf_cli(use_relative_path, output_dir, eyelink_test_data_dir):
         "--input_file",
         str(input_file),
         *["--metadata_file", str(metadata_file)],
+        *["--task", "satf"],
     ]
     if output_dir is not None:
         if use_relative_path:
@@ -54,6 +55,7 @@ def test_all_edf_files(input_file):
         str(input_file),
         "--output_dir",
         str(data_dir() / "output"),
-        "--force",
+        "--task",
+        "test",
     ]
     cli(command)

@@ -37,7 +37,8 @@ def global_parser() -> ArgumentParser:
         "--metadata_file",
         type=str,
         help="""
-        Path to the a yaml file containing extra metadata.
+        Path to a yaml file containing extra metadata.
+        Default: the Scully MEG lab's file bundled with this install.
         """,
         required=False,
         default=None,
