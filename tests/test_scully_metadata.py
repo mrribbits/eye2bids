@@ -57,17 +57,34 @@ def test_overrides(run_cli):
         "0.9",
         "--screen_size",
         "[0.5, 0.3]",
-        "--eye_camera_settings",
-        "{Lens: 25 mm}",
+        "--screen_origin",
+        "[bottom, left]",
         "--institution_name",
         "Somewhere Else",
     )
     assert metadata["ScreenDistance"] == 0.9
     assert metadata["ScreenSize"] == [0.5, 0.3]
-    assert metadata["EyeCameraSettings"] == {"Lens": "25 mm"}
+    assert metadata["ScreenOrigin"] == ["bottom", "left"]
     assert metadata["InstitutionName"] == "Somewhere Else"
     # untouched fields keep the bundled values
     assert metadata["Units"] == load_metadata()["Units"]
+
+
+def test_bundled_metadata_has_only_bids_fields():
+    removed = {
+        "EyeCameraSettings",
+        "FeatureDetectionSettings",
+        "GazeMappingSettings",
+        "ScreenAOIDefinition",
+        "TaskName",  # set with --task
+    }
+    assert not removed & set(load_metadata())
+
+
+@pytest.mark.parametrize("flag", ["--eye_camera_settings", "--screen_aoi_definition"])
+def test_removed_flags_are_rejected(run_cli, flag):
+    with pytest.raises(SystemExit):
+        run_cli("--task", "oddball", flag, "x")
 
 
 def test_other_metadata_file(run_cli, tmp_path):

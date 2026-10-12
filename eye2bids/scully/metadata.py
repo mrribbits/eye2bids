@@ -3,6 +3,7 @@
 eye2bids reads the metadata from the bundled eyelink_MEG_metadata.yml unless
 --metadata_file is given. --task sets TaskName, and each field can be
 overridden with its own command-line flag (e.g. --screen_distance 0.9).
+Only fields in BIDS 1.11 (BEP 020 as merged) have flags.
 """
 
 from __future__ import annotations
@@ -28,10 +29,6 @@ OVERRIDE_FLAGS: dict[str, str] = {
     "screen_size": "ScreenSize",
     "screen_distance": "ScreenDistance",
     "eye_tracker_distance": "EyeTrackerDistance",
-    "screen_aoi_definition": "ScreenAOIDefinition",
-    "eye_camera_settings": "EyeCameraSettings",
-    "feature_detection_settings": "FeatureDetectionSettings",
-    "gaze_mapping_settings": "GazeMappingSettings",
     "raw_data_filters": "RawDataFilters",
     "institution_name": "InstitutionName",
     "institution_address": "InstitutionAddress",
@@ -90,7 +87,7 @@ def add_metadata_arguments(parser: argparse.ArgumentParser) -> None:
         "metadata overrides",
         "Replace one value from the metadata file (by default the Scully MEG "
         "lab's file bundled with this install). Values are read as YAML, "
-        'e.g. 0.9, "[0.606, 0.341]" or "{Lens: 16 mm}". '
+        'e.g. 0.9 or "[0.606, 0.341]". '
         "Distances and sizes are in meters.",
     )
     for flag, field in OVERRIDE_FLAGS.items():
