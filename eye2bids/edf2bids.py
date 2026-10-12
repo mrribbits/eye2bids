@@ -5,6 +5,7 @@ from __future__ import annotations
 import gzip
 import json
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -87,7 +88,7 @@ def _check_inputs(
         if not checked_metadata_file.exists():
             raise FileNotFoundError(f"No such metadata file: {checked_metadata_file}")
         if checked_metadata_file.is_file():
-            e2b_log.info(f"metadata file found: {checked_metadata_file}")
+            e2b_log.debug(f"metadata file found: {checked_metadata_file}")
         elif checked_metadata_file.is_dir():
             raise IsADirectoryError(
                 f"metadata file is a directory: {checked_metadata_file}"
@@ -113,33 +114,43 @@ def _check_output_dir(output_dir: str | Path | None = None) -> Path:
 
 def _check_edf2asc_present() -> bool:
     """Check if edf2asc is present in the path."""
-    try:
-        subprocess.run(["edf2asc"])
+    if shutil.which("edf2asc") is not None:
         return True
-    except FileNotFoundError:
-        e2b_log.error(
-            """edf2asc not found in path.
+    e2b_log.error(
+        """edf2asc not found in path.
 Make sure to install it from https://www.sr-research.com/."""
-        )
-        return False
+    )
+    return False
+
+
+def _run_edf2asc(input_file: Path, option: str, asc_file: Path) -> Path:
+    """Run edf2asc quietly; its output is only shown if the conversion fails."""
+    result = subprocess.run(
+        ["edf2asc", "-y", option, input_file, "-o", asc_file],
+        capture_output=True,
+        text=True,
+        errors="replace",
+    )
+    output = (result.stdout + result.stderr).strip()
+    e2b_log.debug(f"edf2asc output:\n{output}")
+    asc_file = asc_file.with_suffix(".asc")
+    if not asc_file.exists():
+        e2b_log.error(f"edf2asc could not convert {input_file}:\n{output}")
+    return asc_file
 
 
 def _convert_edf_to_asc_events(input_file: str | Path) -> Path:
     """Convert edf to asc - events."""
-    if isinstance(input_file, str):
-        input_file = Path(input_file)
+    input_file = Path(input_file)
     events_asc_file = (input_file.parent) / (input_file.stem + "_events")
-    subprocess.run(["edf2asc", "-y", "-e", input_file, "-o", events_asc_file])
-    return Path(events_asc_file).with_suffix(".asc")
+    return _run_edf2asc(input_file, "-e", events_asc_file)
 
 
 def _convert_edf_to_asc_samples(input_file: str | Path) -> Path:
     """Convert edf to asc - samples."""
-    if isinstance(input_file, str):
-        input_file = Path(input_file)
+    input_file = Path(input_file)
     samples_asc_file = (input_file.parent) / (input_file.stem + "_samples")
-    subprocess.run(["edf2asc", "-y", "-s", input_file, "-o", samples_asc_file])
-    return Path(samples_asc_file).with_suffix(".asc")
+    return _run_edf2asc(input_file, "-s", samples_asc_file)
 
 
 def _reccfg_eye(df: pd.DataFrame) -> str:
@@ -686,7 +697,7 @@ def edf2bids(
             f"The following .edf input file could not be converted to .asc:{input_file}"
         )
 
-    samples = pd.read_csv(samples_asc_file, sep="\t", header=None)
+    samples = pd.read_csv(samples_asc_file, sep="\t", header=None, low_memory=False)
     samples_eye1 = (
         pd.DataFrame(samples.iloc[:, [0, 1, 2, 3]])
         .map(lambda x: x.strip() if isinstance(x, str) else x)
