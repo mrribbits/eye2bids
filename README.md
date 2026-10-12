@@ -9,7 +9,8 @@ eye-tracking format.
 **Install the patched eye2bids from this fork** (a pinned commit of branch
 `scully-eye2bids`, see [Installation](#installation)), not the official
 [bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
-It has three changes that are detailed at the end of the README. 
+It differs from the official release in a few ways, listed in
+[Changes from the official eye2bids](#changes-from-the-official-eye2bids).
 
 ## Installation
 
@@ -125,14 +126,14 @@ Notes:
 - **Multiple recording blocks in one EDF end up in one continuous file.** The log prints a note about multiple start/stop times; this is expected.
 - **Put the outputs in the `meg/` folder of the matching session.** BIDS has no `physio/` folder: eye-tracking files go in the same datatype folder as the recording they accompany, e.g. `sub-001/ses-001/meg/`. Their `sub-`, `ses-`, `task-` (and `run-`, if used) labels should match the MEG run's.
 
-## Three changes in this from the official eye2bids repo.
+## Changes from the official eye2bids
 
-The first two only affect Remote-mode recordings;
-head-stabilized recordings are otherwise converted exactly as by the official release.
+### Fixes and additions submitted to the eye2bids developers
 
-The MEG lab's EyeLink 1000 Plus uses the **OPM mount in Remote mode**: it
-tracks a target sticker on the forehead instead of relying on a stabilized head
-(OPM (Remote) - Target Sticker - Monocular).
+The first two only affect Remote-mode recordings. The MEG lab's EyeLink 1000
+Plus uses the **OPM mount in Remote mode**: it tracks a target sticker on the
+forehead instead of relying on a stabilized head (OPM (Remote) - Target
+Sticker - Monocular).
 
 **1. Fix: Remote-mode files no longer crash.** In Remote mode, the tracker writes
 its recording settings to the EDF in a slightly different format than in
@@ -155,14 +156,42 @@ patched version adds it to `_physio.tsv.gz` as four extra columns:
 `target_x`, `target_y` (sticker position in the camera image), `target_distance`
 (sticker-to-camera distance, mm) and `target_flags` (tracker warnings, e.g. target
 missing). This gives a continuous record of head movement during the MEG run.
-([pull request #<target>](https://github.com/bids-standard/eye2bids/pull/NNN))
+The same pull request also fixes two-eye recordings, where missing samples for
+the second eye were written as `.` instead of `n/a`.
+([pull request #144](https://github.com/bids-standard/eye2bids/pull/144))
 
 **3. Fix: correct screen resolution.** The official eye2bids writes
 `ScreenResolution` in `_events.json` as `[1919, 1079]` for a 1920 x 1080 screen
 (it copies the last pixel's coordinates instead of the pixel count). The
 patched version writes `[1920, 1080]`. This affects all recordings.
-([pull request #<screenres>](https://github.com/bids-standard/eye2bids/pull/MMM))
+([pull request #145](https://github.com/bids-standard/eye2bids/pull/145))
 
-All three changes have been submitted to the eye2bids developers. Once they're
-merged, these instructions will switch to the official release and this fork will
-no longer be needed; reinstall at that point to get the official version.
+**4. Fix: sidecar fields match BIDS 1.11.** The eye-tracking part of BIDS
+changed during review, before it was released in BIDS 1.11.0, and the official
+eye2bids still follows the earlier draft. The patched version writes
+`"OnsetSource": "timestamp"` in `_physioevents.json` (the official release writes
+the draft name `ForeignIndexColumn`, so the BIDS validator reports the required
+`OnsetSource` as missing). It also no longer writes fields that were dropped
+from the specification: `EyeCameraSettings`, `FeatureDetectionSettings`,
+`GazeMappingSettings`, `ScreenAOIDefinition` and `StopTime`. This affects all
+recordings.
+([pull request #146](https://github.com/bids-standard/eye2bids/pull/146))
+
+### Scully Center additions (only in this fork)
+
+These make the converter simpler to use for the MEG lab and aren't meant for
+the official release:
+
+- **Bundled MEG lab metadata, `--task` and override flags.** The MEG lab's
+  eye-tracker settings come with the install and are used by default; `--task`
+  (required) sets `TaskName`, and each setting can be overridden with its own
+  flag. See [Metadata](#metadata).
+- **Quieter output.** eye2bids no longer prints `edf2asc`'s usage text and
+  file headers, or a pandas warning about mixed column types. `edf2asc`'s output
+  still appears with `--verbosity 3`, and in full if a conversion fails.
+
+### When the fixes are merged
+
+Once the four pull requests are merged into the official eye2bids, the fork is
+needed only for the Scully additions. Until then, install the pinned commit
+above; this README will say when that changes.
