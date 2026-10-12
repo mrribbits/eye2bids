@@ -175,7 +175,7 @@ the draft name `ForeignIndexColumn`, so the BIDS validator reports the required
 from the specification: `EyeCameraSettings`, `FeatureDetectionSettings`,
 `GazeMappingSettings`, `ScreenAOIDefinition` and `StopTime`. This affects all
 recordings.
-([pull request #146](https://github.com/bids-standard/eye2bids/pull/146))
+([pull request #147](https://github.com/bids-standard/eye2bids/pull/147))
 
 ### Scully Center additions (only in this fork)
 
