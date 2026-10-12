@@ -20,7 +20,7 @@ class BasePhysioEventsJson(dict[str, Any]):
     def __init__(self) -> None:
         self["Columns"] = ["onset", "duration", "trial_type", "blink", "message"]
         self["Description"] = "Messages logged by the measurement device"
-        self["ForeignIndexColumn"] = "timestamp"
+        self["OnsetSource"] = "timestamp"
 
         self["blink"] = {
             "Description": "Gives status of the eye.",
