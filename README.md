@@ -23,7 +23,7 @@ Install it into your Python or conda environment (Python 3.9 or newer) straight
 from GitHub, pinned to the tested commit:
 
 ```bash
-pip install "git+https://github.com/mrribbits/eye2bids.git@15aa58742f67433c89bcff025d4cb4844913bcd8"
+pip install "git+https://github.com/mrribbits/eye2bids.git@e2e4b304c3bc579cb8cf6f0589e293d0291fac6d"
 ```
 
 This installs `numpy`, `pandas` (2.0 or newer), `pyaml`, `rich` and
@@ -74,17 +74,16 @@ Run `eye2bids -h` for all options.
 ## Metadata
 
 eye2bids needs metadata describing the eye-tracking setup (screen size and
-distance, camera, filters). The MEG lab's settings are bundled with the
-install and used automatically, so there's no file to download or edit.
+distance, eye-tracker distance, filters). The MEG lab's settings are bundled
+with the install and used automatically, so there's no file to download or edit.
+Only fields defined in BIDS 1.11 are written.
 
 To change a single value for your recordings, add its flag. Values are read as
-YAML: numbers, lists in `[...]`, and groups of settings in `{...}`. Distances
-and sizes are in meters.
+YAML: numbers, or lists in `[...]`. Distances and sizes are in meters.
 
 ```bash
 eye2bids --input_file sub-001_task-oddball.edf --task oddball \
-         --screen_distance 0.9 \
-         --eye_camera_settings "{Configuration: OPM (Remote), Lens: 25 mm}"
+         --screen_distance 0.9 --screen_size "[0.5, 0.3]"
 ```
 
 `eye2bids -h` lists every flag with the MEG lab's default value:
@@ -99,16 +98,9 @@ eye2bids --input_file sub-001_task-oddball.edf --task oddball \
 | `--screen_size` | `ScreenSize` |
 | `--screen_distance` | `ScreenDistance` |
 | `--eye_tracker_distance` | `EyeTrackerDistance` |
-| `--screen_aoi_definition` | `ScreenAOIDefinition` |
-| `--eye_camera_settings` | `EyeCameraSettings` |
-| `--feature_detection_settings` | `FeatureDetectionSettings` |
-| `--gaze_mapping_settings` | `GazeMappingSettings` |
 | `--raw_data_filters` | `RawDataFilters` |
 | `--institution_name` | `InstitutionName` |
 | `--institution_address` | `InstitutionAddress` |
-
-A flag replaces the whole value, so for a group like `--eye_camera_settings`,
-give all of its settings, not just the one that changed.
 
 For a different setup altogether, pass your own file with
 `--metadata_file my_metadata.yml`; the flags and `--task` still apply on top of it.
