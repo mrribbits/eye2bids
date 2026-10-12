@@ -65,7 +65,7 @@ Install it into your Python or conda environment (Python 3.9 or newer) straight
 from GitHub, pinned to the tested commit:
 
 ```bash
-pip install "git+https://github.com/mrribbits/eye2bids.git@4e331e909d6adc752113cace24c9fd02491df83a"
+pip install "git+https://github.com/mrribbits/eye2bids.git@ea4a50ee19d891b88055f8d5466a4106eab72f38"
 ```
 
 This installs `numpy`, `pandas` (2.0 or newer), `pyaml`, `rich` and
