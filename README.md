@@ -4,13 +4,15 @@ This branch has what you need to convert EyeLink `.edf` recordings from the
 Scully Center OPM-MEG lab to [BIDS](https://bids-specification.readthedocs.io/)
 eye-tracking format:
 
-- `install_eye2bids.sh`: installs eye2bids and SR Research's `edf2asc` on the cluster (Linux) or a Mac, no sudo needed
-- `eyelink_MEG_metadata.yml`: the MEG lab's eye-tracker settings (screen, distances, camera, filters)
+- `install_edf2asc.sh`: installs SR Research's `edf2asc` on Linux (e.g. the cluster) without sudo
 
-## Which eye2bids this installs
+eye2bids itself is installed with `pip` (see [Installation](#installation)). The
+install includes the MEG lab's eye-tracker settings, which eye2bids uses by default.
 
-**The installer currently installs a patched copy of eye2bids from this fork**
-(a pinned commit of branch `scully-eye2bids`), not the official
+## Which eye2bids to use
+
+**Install the patched eye2bids from this fork** (a pinned commit of branch
+`scully-eye2bids`, see [Installation](#installation)), not the official
 [bids-standard/eye2bids](https://github.com/bids-standard/eye2bids) release.
 It has three changes. The first two only affect Remote-mode recordings;
 head-stabilized recordings are otherwise converted exactly as by the official release.
@@ -40,92 +42,135 @@ patched version adds it to `_physio.tsv.gz` as four extra columns:
 `target_x`, `target_y` (sticker position in the camera image), `target_distance`
 (sticker-to-camera distance, mm) and `target_flags` (tracker warnings, e.g. target
 missing). This gives a continuous record of head movement during the MEG run.
-([pull request #144](https://github.com/bids-standard/eye2bids/pull/NNN))
+([pull request #<target>](https://github.com/bids-standard/eye2bids/pull/NNN))
 
 **3. Fix: correct screen resolution.** The official eye2bids writes
 `ScreenResolution` in `_events.json` as `[1919, 1079]` for a 1920 x 1080 screen
 (it copies the last pixel's coordinates instead of the pixel count). The
 patched version writes `[1920, 1080]`. This affects all recordings.
-([pull request #145](https://github.com/bids-standard/eye2bids/pull/MMM))
+([pull request #<screenres>](https://github.com/bids-standard/eye2bids/pull/MMM))
 
 All three changes have been submitted to the eye2bids developers. Once they're
-merged, the installer will switch to the official release and this fork will no
-longer be needed. If you installed before then, re-run the installer at that
-point to get the official version.
+merged, these instructions will switch to the official release and this fork will
+no longer be needed; reinstall at that point to get the official version.
 
-## 1. Download the install script
+## Installation
 
-Download it into your jukebox partition. Replace `[...]` with your own path,
-e.g. `/jukebox/yourlab/software`.
+eye2bids needs two things: the `eye2bids` Python package, and SR Research's
+`edf2asc` program, which eye2bids runs to read the `.edf` files.
 
-```bash
-cd /jukebox/[...]
-curl -fsSLO https://raw.githubusercontent.com/mrribbits/eye2bids/scully-config/eyetracking/install_eye2bids.sh
-```
+### 1. Install eye2bids with pip
 
-## 2. Run the installer
+Install it into your Python or conda environment (Python 3.9 or newer) straight
+from GitHub, pinned to the tested commit:
 
 ```bash
-INSTALL_DIR=/jukebox/[...]/eye2bids bash install_eye2bids.sh
+pip install "git+https://github.com/mrribbits/eye2bids.git@4e331e909d6adc752113cace24c9fd02491df83a"
 ```
 
-Everything goes into `INSTALL_DIR`. To uninstall, delete that folder.
+This installs `numpy`, `pandas` (2.0 or newer), `pyaml`, `rich` and
+`rich-argparse` if they're missing, and adds an `eye2bids` command. The MEG
+lab's eye-tracker settings come with it (see [Metadata](#metadata)).
 
-### On a Mac
+The commit ID pins exactly the version the Scully Center tested, so a later
+push to the fork can't change what you install.
 
-The same installer works on macOS, with one extra step first. On Linux it
-downloads `edf2asc` itself, but SR Research's macOS installer needs a login, so:
+If you'd rather not change an existing environment, create a conda environment
+for it first, then run the `pip install` above inside it:
+
+```bash
+conda create -n eye2bids python=3.12
+conda activate eye2bids
+```
+
+Run `conda activate eye2bids` in each new shell (or Slurm job) before using eye2bids.
+
+### 2. Install edf2asc
+
+**On Linux** (e.g. the cluster), without sudo. Replace `[...]` with your own
+path, e.g. `/jukebox/yourlab/software`:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/mrribbits/eye2bids/scully-config/eyetracking/install_edf2asc.sh
+INSTALL_DIR=/jukebox/[...]/edf2asc bash install_edf2asc.sh
+```
+
+Then add it to your PATH, e.g. in `~/.bashrc` (the script prints this line):
+
+```bash
+export PATH="/jukebox/[...]/edf2asc/bin:$PATH"
+```
+
+To uninstall, delete the `INSTALL_DIR` folder.
+
+**On a Mac**, install SR Research's EyeLink Developers Kit, which includes
+`edf2asc`. Its download needs a login:
 
 1. Log in to the [SR Research support forum](https://www.sr-research.com/support/),
    then download and run the **EyeLink Developers Kit** installer for macOS.
 2. Open a new terminal and check that `which edf2asc` prints a path.
-3. Run the installer, e.g. into your home folder:
 
-   ```bash
-   INSTALL_DIR=$HOME/software/eye2bids bash install_eye2bids.sh
-   ```
-
-If `edf2asc` is installed but not on your PATH, add
-`EDF2ASC=/path/to/edf2asc` in front of the command. Without `edf2asc`, the
-installer stops before installing anything and explains what to do.
-
-eye2bids needs Python 3.9 or newer. If `python3` on your system is older, load a
-newer Python first or point the installer at one:
+### 3. Check
 
 ```bash
-INSTALL_DIR=/jukebox/[...]/eye2bids PYTHON=/path/to/python3.11 bash install_eye2bids.sh
+which edf2asc
+eye2bids --version
 ```
 
-## 3. Get the Scully MEG metadata file
+## Run eye2bids
 
-The installer downloads it automatically to
-`/jukebox/[...]/eye2bids/eyelink_MEG_metadata.yml`. To download it separately:
-
-```bash
-curl -fsSLO https://raw.githubusercontent.com/mrribbits/eye2bids/scully-config/eyetracking/eyelink_MEG_metadata.yml
-```
-
-Copy the file into your project and change **`TaskName`** to match your task
-(the `task-` label in your filenames). The other settings describe the MEG
-lab's eye-tracking setup and shouldn't need changing.
-
-## 4. Run eye2bids
-
-Load the environment in each new shell (or Slurm job), then check that it works:
-
-```bash
-source /jukebox/[...]/eye2bids/eye2bids_env.sh
-eye2bids -h
-```
-
-Example:
+`--task` is required: it's your task label, written as `TaskName` (use the
+`task-` label in your BIDS filenames, letters and digits only).
 
 ```bash
 eye2bids --input_file sub-001_ses-001_task-oddballftcued.edf \
-         --metadata_file eyelink_MEG_metadata.yml
+         --task oddballftcued
 ```
 
 Output goes to the current folder unless you add `--output_dir <folder>`.
+Run `eye2bids -h` for all options.
+
+## Metadata
+
+eye2bids needs metadata describing the eye-tracking setup (screen size and
+distance, camera, filters). The MEG lab's settings are bundled with the
+install and used automatically, so there's no file to download or edit.
+
+To change a single value for your recordings, add its flag. Values are read as
+YAML: numbers, lists in `[...]`, and groups of settings in `{...}`. Distances
+and sizes are in meters.
+
+```bash
+eye2bids --input_file sub-001_task-oddball.edf --task oddball \
+         --screen_distance 0.9 \
+         --eye_camera_settings "{Configuration: OPM (Remote), Lens: 25 mm}"
+```
+
+`eye2bids -h` lists every flag with the MEG lab's default value:
+
+| Flag | BIDS field |
+|---|---|
+| `--sample_coordinate_system` | `SampleCoordinateSystem` |
+| `--screen_origin` | `ScreenOrigin` |
+| `--units` | `Units` |
+| `--software_version` | `SoftwareVersion` |
+| `--screen_refresh_rate` | `ScreenRefreshRate` |
+| `--screen_size` | `ScreenSize` |
+| `--screen_distance` | `ScreenDistance` |
+| `--eye_tracker_distance` | `EyeTrackerDistance` |
+| `--screen_aoi_definition` | `ScreenAOIDefinition` |
+| `--eye_camera_settings` | `EyeCameraSettings` |
+| `--feature_detection_settings` | `FeatureDetectionSettings` |
+| `--gaze_mapping_settings` | `GazeMappingSettings` |
+| `--raw_data_filters` | `RawDataFilters` |
+| `--institution_name` | `InstitutionName` |
+| `--institution_address` | `InstitutionAddress` |
+
+A flag replaces the whole value, so for a group like `--eye_camera_settings`,
+give all of its settings, not just the one that changed.
+
+For a different setup altogether, pass your own file with
+`--metadata_file my_metadata.yml`; the flags and `--task` still apply on top of it.
 
 ## Outputs
 
