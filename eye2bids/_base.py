@@ -161,13 +161,9 @@ class BasePhysioJson(dict[str, Any]):
             return None
 
         self["SoftwareVersion"] = metadata.get("SoftwareVersion")
-        self["EyeCameraSettings"] = metadata.get("EyeCameraSettings")
         self["EyeTrackerDistance"] = metadata.get("EyeTrackerDistance")
-        self["FeatureDetectionSettings"] = metadata.get("FeatureDetectionSettings")
-        self["GazeMappingSettings"] = metadata.get("GazeMappingSettings")
         self["RawDataFilters"] = metadata.get("RawDataFilters")
         self["SampleCoordinateSystem"] = metadata.get("SampleCoordinateSystem")
-        self["ScreenAOIDefinition"] = metadata.get("ScreenAOIDefinition")
 
     def output_filename(self, recording: str | None = None) -> str:
         """Generate output filename."""
