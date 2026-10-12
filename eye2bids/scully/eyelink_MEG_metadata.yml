@@ -46,5 +46,5 @@ GazeMappingSettings:
 RawDataFilters: "EyeLink heuristic file sample filter: EXTRA (level 2)"
 
 InstitutionName: Princeton Neuroscience Institute, Princeton University
-InstitutionAddress: Washington Road, Princeton, NJ 08544, USA
+InstitutionAddress: 40 Woodlands Way, Princeton, NJ 08540, USA
 TaskName: oddballftcued
