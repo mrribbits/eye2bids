@@ -21,7 +21,7 @@ def test_physioevents_json_onset_source():
 
 
 def test_physio_json_has_no_removed_fields():
-    metadata = {field: "x" for field in REMOVED_FIELDS}
+    metadata = dict.fromkeys(REMOVED_FIELDS, "x")
     metadata["SampleCoordinateSystem"] = "gaze-on-screen"
     sidecar = BasePhysioJson(manufacturer="SR-Research", metadata=metadata)
     assert sidecar["SampleCoordinateSystem"] == "gaze-on-screen"
