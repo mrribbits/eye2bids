@@ -190,7 +190,7 @@ their header, so the same data always give the same file. Without this fix,
 the BIDS validator reports three errors (`RecordedEye`,
 `AverageCalibrationError`, `MaximalCalibrationError`) and two warnings
 (`GZIP_HEADER_FILENAME`, `GZIP_HEADER_MTIME`). This affects all recordings.
-([pull request #NNN](https://github.com/bids-standard/eye2bids/pull/NNN))
+([pull request #148](https://github.com/bids-standard/eye2bids/pull/148))
 
 ### Scully Center additions (only in this fork)
 
