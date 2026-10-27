@@ -24,7 +24,7 @@ Install it into your Python or conda environment (Python 3.9 or newer) straight
 from GitHub, pinned to the tested commit:
 
 ```bash
-pip install "git+https://github.com/mrribbits/eye2bids.git@e2e4b304c3bc579cb8cf6f0589e293d0291fac6d"
+pip install "git+https://github.com/mrribbits/eye2bids.git@19a0b3df01edc305e95d33bcfb8081dc9be590da"
 ```
 
 This installs `numpy`, `pandas` (2.0 or newer), `pyaml`, `rich` and
@@ -176,6 +176,21 @@ from the specification: `EyeCameraSettings`, `FeatureDetectionSettings`,
 `GazeMappingSettings`, `ScreenAOIDefinition` and `StopTime`. This affects all
 recordings.
 ([pull request #147](https://github.com/bids-standard/eye2bids/pull/147))
+
+**5. Fix: valid BIDS values in `_physio.json`, and reproducible `.tsv.gz`
+files.** The official eye2bids writes `RecordedEye` as `"Right"`, but BIDS
+allows only lowercase (`"right"`). It writes `AverageCalibrationError` and
+`MaximalCalibrationError` as lists with one entry per validation (e.g.
+`[[0.31]]`), where BIDS wants a single number in degrees; the patched version
+writes each eye's last validation. It also picks that validation by the eye
+named in each validation message, which fixes one-eye recordings with
+several validations (the official version took every other one). Finally,
+the `.tsv.gz` files no longer store the file name and time of writing in
+their header, so the same data always give the same file. Without this fix,
+the BIDS validator reports three errors (`RecordedEye`,
+`AverageCalibrationError`, `MaximalCalibrationError`) and two warnings
+(`GZIP_HEADER_FILENAME`, `GZIP_HEADER_MTIME`). This affects all recordings.
+([pull request #NNN](https://github.com/bids-standard/eye2bids/pull/NNN))
 
 ### Scully Center additions (only in this fork)
 
